@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -74,6 +75,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Communication\WcfChannelFactory.cs" />
+    <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\CoreConfigKey.cs" />
     <Compile Include="Core\CompositionContainerFactory.cs" />
     <Compile Include="Core\OneTimeAction.cs" />
     <Compile Include="Core\OneTimeFunc.cs" />

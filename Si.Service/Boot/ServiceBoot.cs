@@ -13,7 +13,7 @@ namespace Si.Service.Boot
     public interface IServiceBoot
     {
         void Boot();
-        void Boot(IServiceArgs serviceArgs);
+        void Boot(string[] args);
     }
 
     [Export(typeof(IServiceBoot))]
@@ -21,6 +21,7 @@ namespace Si.Service.Boot
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceBoot));
 
+        private readonly IServiceArgsRepo _argsRepo;
         private readonly IServiceInstance _serviceInstance;
         private readonly IEventPublisher _serviceEventPublisher;
         private readonly IEnvironmentWrapper _environment;
@@ -28,11 +29,13 @@ namespace Si.Service.Boot
         [ImportingConstructor]
         public ServiceBoot
         (
+            IServiceArgsRepo argsRepo,
             IServiceInstance serviceInstance,
             IEventPublisher serviceEventPublisher,
             IEnvironmentWrapper environmentWrapper
         )
         {
+            _argsRepo = argsRepo;
             _serviceInstance = serviceInstance;
             _serviceEventPublisher = serviceEventPublisher;
             _environment = environmentWrapper;
@@ -40,17 +43,17 @@ namespace Si.Service.Boot
 
         public void Boot()
         {
-            Boot(null);
+            Boot(new string[0]);
         }
 
-        public void Boot(IServiceArgs serviceArgs)
+        public void Boot(string[] args)
         {
-            if (serviceArgs != null)
+            _argsRepo.SetServiceArgs(args);
+            IServiceArgs serviceArgs = _argsRepo.GetServiceArgs();
+
+            if (serviceArgs.LaunchDebugger)
             {
-                if (serviceArgs.LaunchDebugger)
-                {
-                    Debugger.Launch();
-                }
+                Debugger.Launch();
             }
 
             try
@@ -141,7 +144,7 @@ namespace Si.Service.Boot
             // Cancel event to prevent our app domain being killed before we can gracefully stop our processes.
             args.Cancel = true;
 
-            OnGracefulShutdownRequest(new GracefulShutdownRequest(this, reason));
+            _serviceEventPublisher.Publish(new GracefulShutdownRequest(this, reason));
         }
 
     }
